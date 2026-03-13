@@ -1,0 +1,9 @@
+sentence-transformers
+flask
+flask-cors
+streamlit
+scikit-learn
+numpy
+requests
+vaderSentiment
+jupyter
