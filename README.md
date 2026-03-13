@@ -23,6 +23,8 @@ We add **Sentiment Analysis** to the pipeline:
 ```
 User enters two sentences
         ↓
+Streamlit calls model.py directly
+        ↓
 Sentence Transformer → embeddings (384-dim vectors)
         ↓
 Cosine Similarity → topic similarity score
@@ -31,7 +33,7 @@ VADER Sentiment Analysis → detect positive/negative feelings
         ↓
 If sentiments are opposite → reduce the similarity score
         ↓
-Final Adjusted Similarity Score
+Final Adjusted Similarity Score returned to Streamlit
 ```
 
 ---
@@ -43,11 +45,12 @@ semantic_similarrity/
 │
 ├── model_building.ipynb    # Step-by-step notebook with explanations
 ├── model.py                # Core logic (embeddings + sentiment + similarity)
-├── app.py                  # Flask backend API (port 5001)
-├── streamlit_app.py        # Streamlit frontend UI
+├── streamlit_app.py        # Streamlit frontend UI (Runs natively on Streamlit Cloud)
 ├── requirements.txt        # Python dependencies
 └── README.md               # This file
 ```
+
+_(Note: `app.py` was used in an earlier version but is completely optional now. Streamlit calls the model directly for easier cloud deployment)._
 
 ---
 

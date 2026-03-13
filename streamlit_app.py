@@ -1,14 +1,20 @@
 # ============================================================
-# streamlit_app.py — Streamlit Frontend UI
+# streamlit_app.py — Streamlit Frontend & Core Logic
 # ============================================================
 # This file creates a simple web interface where users can
 # enter two sentences and check their semantic similarity.
-# The system also considers sentiment to avoid false matches.
+# 
+# Note for Deployment: 
+# We import the logic directly from model.py instead of using 
+# a Flask API so that this runs seamlessly on Streamlit Cloud.
 # ============================================================
 
 # Step 1: Import required libraries
 import streamlit as st  # Streamlit for building the UI
-import requests         # To send HTTP requests to the Flask API
+from model import get_similarity  # Import our similarity function directly
+
+# Optional: Add caching to model loading if we want to optimize, 
+# but for this simple project, model.py already loads it globally.
 
 # Step 2: Set up the page title and description
 st.set_page_config(page_title="Semantic Similarity Checker", page_icon="🔍")
@@ -32,21 +38,14 @@ if st.button("🚀 Check Similarity", type="primary"):
     if not sentence1 or not sentence2:
         st.warning("⚠️ Please enter both sentences.")
     else:
-        # Step 5: Send sentences to the Flask API
-        try:
-            with st.spinner("Calculating similarity..."):
-                response = requests.post(
-                    "http://localhost:5001/similarity",
-                    json={
-                        "sentence1": sentence1,
-                        "sentence2": sentence2
-                    }
-                )
+        # Step 5: Compute similarity directly using our imported model function
+        with st.spinner("Loading model and calculating similarity... (this may take a moment on first run)"):
+            try:
+                # Call the function from model.py directly! No API needed.
+                result = get_similarity(sentence1, sentence2)
 
-            # Step 6: Display the result
-            if response.status_code == 200:
-                result = response.json()
-                final_score = result['similarity_score']
+                # Step 6: Display the result
+                final_score = result['final_similarity']
                 original_score = result['original_similarity']
                 sentiment1 = result['sentiment1']
                 sentiment2 = result['sentiment2']
@@ -90,9 +89,6 @@ if st.button("🚀 Check Similarity", type="primary"):
                     st.info("ℹ️ The sentences are **moderately similar** in meaning.")
                 else:
                     st.warning("⚠️ The sentences are **not very similar** in meaning.")
-
-            else:
-                st.error("❌ Error from API. Please check if the Flask server is running.")
-
-        except requests.exceptions.ConnectionError:
-            st.error("❌ Could not connect to the Flask API. Make sure the Flask server is running on http://localhost:5001")
+            
+            except Exception as e:
+                st.error(f"❌ An error occurred during calculation: {e}")
